@@ -3,10 +3,12 @@ Positions=[[-3,10,-1],[-12,-10,-5],[-9,0,10],[7,-5,-3]]
 Velocities=[]
 PreviousStates=[[],[],[]]
 Searching=[True,True,True]
-print("For part 2 get the LCM of the numbers after the answer to part 1 (this might take a long time)")
+print("For part 2 get the LCM of the 3 numbers after the answer to part 1 (this might take a long time)")
 for i in range(0,len(Positions)):
     Velocities.append([0,0,0])
-for i in range(0,100000):
+    i=-1
+while Searching[0] or Searching[1] or Searching[2]:
+    i+=1
     PositionsCopy=copy.deepcopy(Positions)
     VelocitiesCopy=copy.deepcopy(Velocities)
     State=[[],[],[]]
@@ -16,7 +18,7 @@ for i in range(0,100000):
                 State[Dimension].append(copy.deepcopy([Positions[MoonNum][Dimension],Velocities[MoonNum][Dimension]]))
     for Dimension in range(0,3):
         if Searching[Dimension]:
-            if not State[Dimension] in PreviousStates[Dimension]:
+            if len(PreviousStates[Dimension])<2 or not State[Dimension] == PreviousStates[Dimension][1]:
                 PreviousStates[Dimension].append(copy.deepcopy(State[Dimension]))
             else:
                 print(i)
@@ -38,3 +40,4 @@ for i in range(0,100000):
         Energy+=KinEnergy*PotEnergy
     if i==999:
         print("Part 1: "+str(Energy))
+

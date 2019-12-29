@@ -1,7 +1,7 @@
 def RunIntcode(Code,Inputs,Index,RelativeBase):
     Running=True
     Returns=[]
-    while Running:
+    while Running and not int(str(Code[Index])[-2:])==99:
         Parameters=[]
         if int(str(Code[Index])[-2:])==1:
             if len(str(Code[Index]))<5:
@@ -198,6 +198,10 @@ def RunIntcode(Code,Inputs,Index,RelativeBase):
             print(Index)
             print(Code[Index])
             break
+        if len(Returns)==2:
+            break
+    else:
+        return("End",Code,Index,RelativeBase)
     return(Returns,Code,Index,RelativeBase)
     
 
