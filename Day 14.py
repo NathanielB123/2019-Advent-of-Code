@@ -1,6 +1,6 @@
 import math
-# NEEDS TO BE ABLE TO CHECK FOR EXCESS (ANOTHER LIST?)
-# NEEDS TO BE ABLE TO SUPPORT MULTIPLE REACTIONS FOR ONE PRODUCT
+import random
+import copy
 Input="""1 FJFL, 1 BPVQN => 7 CMNH
 6 FJFL, 2 KZJLT, 3 DZQJ => 2 NSPZ
 11 TPZDN => 2 TNMC
@@ -66,12 +66,6 @@ Input="""1 FJFL, 1 BPVQN => 7 CMNH
 5 FLHW, 10 JPGK, 1 XZKTG => 4 QPNTQ
 2 LRBN => 9 FZVS
 149 ORE => 8 ZTBFN"""
-Input="""10 ORE => 10 A
-1 ORE => 1 B
-7 A, 1 B => 1 C
-7 A, 1 C => 1 D
-7 A, 1 D => 1 E
-7 A, 1 E => 1 FUEL"""
 Reactions={}
 Input=Input.split("\n")
 for Reaction in Input:
@@ -102,17 +96,48 @@ for Reaction in Input:
         Reactants.append([TempName,TempNumber])
     Reactions[Name]=[Number,Reactants]
 
-def RecursiveSearch(Reactions,Material,Number):
+def RecursiveSearch(Reactions,Material,Number,Excess):
     for Key in Reactions.keys():
         if Key==Material:
             break
     else:
-        return Number
-    Multiple=math.ceil(Number/Reactions[Key][0])
+        return Number, Excess
+    Multiple=Number/Reactions[Key][0]
+    if not int(Multiple)==Multiple:
+        if Material in Excess.keys():
+            Excess[Material]+=math.ceil(Multiple)*Reactions[Key][0]-Number
+        else:
+            Excess[Material]=math.ceil(Multiple)*Reactions[Key][0]-Number
+    Multiple=math.ceil(Multiple)
     OreNeeded=0
-    for Needed in Reactions[Key][1]:
-        OreNeeded+=RecursiveSearch(Reactions,Needed[0],Needed[1])
-    OreNeeded=OreNeeded*Multiple
-    return OreNeeded
-
-print(RecursiveSearch(Reactions,"FUEL",1))
+    random.shuffle(Reactions[Key][1])
+    for i in range(0,len(Reactions[Key][1])):
+        Needed=copy.deepcopy(Reactions[Key][1][i])
+        Needed[1]=Needed[1]*Multiple
+        if not Needed[0] in Excess.keys():
+            ToAdd, Excess=RecursiveSearch(Reactions,Needed[0],Needed[1],Excess)
+            OreNeeded+=ToAdd
+        elif Excess[Needed[0]]>=Needed[1]:
+            Excess[Needed[0]]-=Needed[1]
+            if Excess[Needed[0]]==0:
+                del Excess[Needed[0]]
+        else:
+            Needed[1]-=Excess[Needed[0]]
+            del Excess[Needed[0]]
+            ToAdd, Excess=RecursiveSearch(Reactions,Needed[0],Needed[1],Excess)
+            OreNeeded+=ToAdd
+    return OreNeeded,Excess
+Ore, Excess = RecursiveSearch(Reactions,"FUEL",1,{})
+print("PART 1: "+str(Ore))
+Excess={}
+Excess["ORE"]=1000000000000
+Ore=0
+TotalFuel=0
+SpeedUpper=7993600 #Helps speed things up - used because I know the fuel produced will be higher than this number (gotten using trial and error changing this number until I still had positive ore)
+Ore, Excess = RecursiveSearch(Reactions,"FUEL",SpeedUpper,Excess)
+TotalFuel=SpeedUpper
+while Ore==0:
+    Ore, Excess = RecursiveSearch(Reactions,"FUEL",1,Excess)
+    TotalFuel+=1
+TotalFuel-=1
+print("PART 2: "+str(TotalFuel))
