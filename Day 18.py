@@ -180,8 +180,8 @@ def FloodFill(Maze, Keys, Pos):
         NewPos = []
         for Pos in PotPos:
             for Move in Moves:
-                if Pos[0] + Move[0] > 0 and Pos[0] + Move[0] < len(Maze) and Pos[1] + Move[1] > 0 and Pos[1] + Move[1] < len(Maze[Pos[0] + Move[0]]):
-                    TPos = (Pos[0] + Move[0], Pos[1] + Move[1])
+                TPos = (Pos[0] + Move[0], Pos[1] + Move[1])
+                if TPos[0] >= 0 and TPos[0] < len(Maze) and TPos[1] >= 0 and TPos[1] < len(Maze[TPos[0]]):
                     if ToFill[TPos[0]][TPos[1]] == -1:
                         Tile = Maze[TPos[0]][TPos[1]]
                         if Tile == "." or Tile == "@":
